@@ -1,0 +1,79 @@
+from tkinter import Tk, Label, Entry, Button, IntVar, Radiobutton
+
+f2cnotes = {'C': 'D', 'B': 'Dflat', 'Bflat': 'C', 'A': 'B', 'Aflat': 'Bflat', 'G': 'A', 'Gflat': 'Aflat', 'F': 'G', 'E': 'Gflat', 'Eflat': 'F', 'D': 'E', 'Dflat': 'Eflat'}
+c2fnotes = {'D': 'C', 'Dflat': 'B', 'C': 'Bflat', 'B': 'A', 'Bflat': 'Aflat', 'A': 'G', 'Aflat': 'Gflat', 'G': 'F', 'Gflat': 'E', 'F': 'Eflat', 'E': 'D', 'Eflat': 'Dflat'}
+
+class Score:
+    """Encapsulates a line of music"""
+
+    def __init__(self, notes):
+        """Creates a score object"""
+        self.notes = notes
+
+    def flute2clar(self, note):
+        if note in f2cnotes:
+            return f2cnotes[note]
+        else:
+            return note
+
+    def clar2flute(self, note):
+        if note in c2fnotes:
+            return c2fnotes[note]
+        else:
+            return note
+
+class MusicGui(object):
+    def __init__(self, score):
+        self.score = score
+        self.gui = self.makeGui()
+
+    def makeGui(self):
+        root = Tk()
+        root.title('Clarinet/Flute Note Transposition')
+
+        note_label = Label(root, text='Enter the notes you want transposed')
+        note_label.grid(row=0, column=0)
+
+        self.note_entry = Entry(root)
+        self.note_entry.grid(row=0, column=1)
+
+        self.output_label = Label(root, text='Transposed Note:')
+        self.output_label.grid(row=1, column=0)
+
+        self.output_entry = Entry(root, state='readonly')
+        self.output_entry.grid(row=1, column=1)
+
+        self.instrument = IntVar()
+        clarinet_radio = Radiobutton(root, text='Clarinet', variable=self.instrument, value=0)
+        clarinet_radio.grid(row=2, column=0)
+        flute_radio = Radiobutton(root, text='Flute', variable=self.instrument, value=1)
+        flute_radio.grid(row=2, column=1)
+
+        transpose_button = Button(root, text='Transpose', command=self.processButton)
+        transpose_button.grid(row=3, columnspan=2, pady=10)
+
+        return root
+
+    def processButton(self):
+        sNote = self.note_entry.get()
+        instrument = self.instrument.get()
+        transposed_notes = []
+
+        if instrument == 0:  # Clarinet
+            transposed_notes = [self.score.flute2clar(note) for note in sNote.split()]
+        elif instrument == 1:  # Flute
+            transposed_notes = [self.score.clar2flute(note) for note in sNote.split()]
+
+        transposed_notes_str = ' '.join(transposed_notes)
+        self.output_entry.config(state='normal')
+        self.output_entry.delete(0, 'end')
+        self.output_entry.insert(0, transposed_notes_str)
+        self.output_entry.config(state='readonly')
+
+def main():
+    score = Score([])
+    gui = MusicGui(score)
+    gui.gui.mainloop()
+
+if __name__ == '__main__':
+    main()
